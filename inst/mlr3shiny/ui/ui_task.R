@@ -23,6 +23,9 @@ tabpanel_Task <- fluidPage(
     column(6,
            wellPanel(
              uiOutput(outputId = "Task_processing")
+           ),
+           wellPanel(
+             uiOutput(outputId = "Task_visualize")
            )
     )
   )

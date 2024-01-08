@@ -236,3 +236,36 @@ output$Task_processing <- renderUI({
 
 
 
+
+observeEvent(input$Task_backend, {
+  test <- currenttask$task
+  render_visualisation_plot(test)
+  if(exists("currenttask")) {
+    print("TEst")
+  }
+  if(exists("test")) {
+     print("yes")
+     print(test)
+  }
+  else {
+    print("no")
+  }
+})
+
+render_visualisation_plot <- function(test) {
+  output$plot_vizualisation <- renderPlot({
+    autoplot(test, type = "pairs")
+  })
+}
+
+printTaskVisualizeUI <- function(){
+  tagList(
+    h5("Visualization of Data", style = "font-weight: bold;"),
+    plotOutput(outputId = "plot_vizualisation")
+  )
+}
+
+
+output$Task_visualize <- renderUI({
+  printTaskVisualizeUI()
+})

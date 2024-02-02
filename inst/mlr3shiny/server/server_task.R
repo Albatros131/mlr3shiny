@@ -237,31 +237,33 @@ output$Task_processing <- renderUI({
 
 
 
-observeEvent(input$Task_backend, {
-  test <- currenttask$task
-  render_visualisation_plot(test)
-  if(exists("currenttask")) {
-    print("TEst")
-  }
-  if(exists("test")) {
-     print("yes")
-     print(test)
-  }
-  else {
-    print("no")
-  }
-})
-
-render_visualisation_plot <- function(test) {
-  output$plot_vizualisation <- renderPlot({
+render_visualization_plot <- function(test) {
+  output$plot_visualization <- renderPlot({
     autoplot(test, type = "pairs")
   })
 }
 
+observeEvent(input$action_visualize, {
+  if (currenttask$task$nrow > 5000 | length(currenttask$featNames) > 5) {
+    print("lang")
+    shinyalert(title = "Warning", text = "Computation time for the plot might take long, because there are many observations or variables in the Data Backend.",
+    animation = FALSE, showCancelButton = TRUE, showConfirmButton = TRUE)
+  }
+  else {
+    #render_visualization_plot(currenttask$task)
+    }
+})
+
+observeEvent(currenttask$featNames, {
+  output$plot_visualization <- renderPlot({})
+})
+
 printTaskVisualizeUI <- function(){
   tagList(
     h5("Visualization of Data", style = "font-weight: bold;"),
-    plotOutput(outputId = "plot_vizualisation")
+    actionButton(inputId = "action_visualize", label = "Create Visualization", icon = icon("hammer")),
+    p(currenttask$visualize),
+      plotOutput(outputId = "plot_visualization")
   )
 }
 

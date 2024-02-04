@@ -275,7 +275,6 @@ printTaskVisualizeUI <- function(){
   )
 }
 
-
 output$Task_visualize <- renderUI({
   printTaskVisualizeUI()
 })

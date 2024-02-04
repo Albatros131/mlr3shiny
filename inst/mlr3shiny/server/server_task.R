@@ -234,9 +234,6 @@ output$Task_processing <- renderUI({
   printTaskProcessingUI()
 })
 
-
-
-
 render_visualization_plot <- function(test) {
   output$plot_visualization <- renderPlot({
     autoplot(test, type = "pairs")
@@ -246,11 +243,17 @@ render_visualization_plot <- function(test) {
 observeEvent(input$action_visualize, {
   if (currenttask$task$nrow > 5000 | length(currenttask$featNames) > 5) {
     print("lang")
-    shinyalert(title = "Warning", text = "Computation time for the plot might take long, because there are many observations or variables in the Data Backend.",
-    animation = FALSE, showCancelButton = TRUE, showConfirmButton = TRUE)
+    shinyalert(
+      title = "Warning",
+      text = "Computation time for the plot might take long, 
+      because there are many observations or variables in the Data Backend.",
+      animation = FALSE,
+      showCancelButton = TRUE,
+      showConfirmButton = TRUE,
+      callbackR = function(x) {if (x == TRUE) {render_visualization_plot(currenttask$task)}})
   }
   else {
-    #render_visualization_plot(currenttask$task)
+    render_visualization_plot(currenttask$task)
     }
 })
 
@@ -261,9 +264,14 @@ observeEvent(currenttask$featNames, {
 printTaskVisualizeUI <- function(){
   tagList(
     h5("Visualization of Data", style = "font-weight: bold;"),
-    actionButton(inputId = "action_visualize", label = "Create Visualization", icon = icon("hammer")),
-    p(currenttask$visualize),
-      plotOutput(outputId = "plot_visualization")
+    fluidRow(
+      column(4, h5("Select Plot Type:")),
+      column(4, pickerInput("Plot_Type",
+                             choices = c("target", "duo", "pairs"),
+                             selected = "pairs")),
+      column(4, actionButton(inputId = "action_visualize", label = "Create Visualization", icon = icon("hammer"))),
+    ),
+    plotOutput(outputId = "plot_visualization")
   )
 }
 

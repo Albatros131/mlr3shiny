@@ -18,12 +18,12 @@ tabpanel_Task <- fluidPage(
                       tableOutput(outputId = "Task_overview")
                      )
              )
-           )
            ),
-    column(6,
            wellPanel(
              uiOutput(outputId = "Task_processing")
-           ),
+           )
+          ),
+    column(6,
            wellPanel(
              uiOutput(outputId = "Task_visualize")
            )

@@ -84,6 +84,13 @@ tabpanel_predict <- fluidPage(
                         )
                  )
                )
+             ),
+             hidden(
+              wellPanel(
+              id = "Pred_well_decision_tree",
+              h5("Decision Tree", style="font-weight: bold;"),
+              plotOutput(outputId="plot_decision_tree")
+              )
              )
     )
   )

@@ -152,6 +152,7 @@ output$Predict_codegen_btn <- renderUI({
 
 # train learner
 observeEvent(input$Pred_train_learner, {
+    print(Pred$Learner)
     withProgress(message = "Training model on all data", {
       withCallingHandlers(
         tryCatch({
@@ -520,3 +521,23 @@ get_final_training_code <- function(task, learner) {
   return(final_train_code)
 }
 
+observe({
+  toggle(id = "Pred_well_decision_tree", condition = "1==1")
+})
+
+getDecisionTreeUi <- function() {
+  output$plot_decision_tree <- renderPlot({autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty")})
+}
+
+output$plot_decision_tree <- renderUI({
+  getDecisionTreeUi()
+})
+
+observeEvent(input$Pred_learner, {
+  print("--------------------------------------------------")
+  # print(get(input$Pred_learner))
+  # print(get(input$Pred_learner)$Learner)
+  print(Pred$Learner$graph_model$pipeops)
+  print("--------------------------------------------------")
+  print(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model)
+})

@@ -152,7 +152,6 @@ output$Predict_codegen_btn <- renderUI({
 
 # train learner
 observeEvent(input$Pred_train_learner, {
-    print(Pred$Learner)
     withProgress(message = "Training model on all data", {
       withCallingHandlers(
         tryCatch({
@@ -522,22 +521,31 @@ get_final_training_code <- function(task, learner) {
 }
 
 observe({
-  toggle(id = "Pred_well_decision_tree", condition = "1==1")
+  toggle(id = "Pred_well_decision_tree", 
+  condition = !is.null(input$Pred_learner) && (Pred$Learner$graph_model$output$op.id == "classif.rpart" | Pred$Learner$graph_model$output$op.id == "regr.rpart"))
 })
 
-getDecisionTreeUi <- function() {
-  output$plot_decision_tree <- renderPlot({autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty")})
-}
+observeEvent(input$action_visualize, {
+  print(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model)
+  autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty")
+})
+
+# getDecisionTreeUi <- function() {
+#   output$plot_decision_tree <- renderPlot({autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty")})
+# }
 
 output$plot_decision_tree <- renderUI({
-  getDecisionTreeUi()
+  tagList(
+    plotOutput(outputId = "plot_decision_tree")
+    )
 })
 
 observeEvent(input$Pred_learner, {
-  print("--------------------------------------------------")
-  # print(get(input$Pred_learner))
-  # print(get(input$Pred_learner)$Learner)
-  print(Pred$Learner$graph_model$pipeops)
-  print("--------------------------------------------------")
-  print(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model)
+  print(Pred$Learner$graph_model$output$op.id)
+  print(exists("graph_model", envir = as.environment(Pred$Learner)) && (Pred$Learner$graph_model$output$op.id == "classif.rpart" | Pred$Learner$graph_model$output$op.id == "regr.rpart"))
+})
+
+observeEvent(input$Predict_predict, {
+  print("........")
+
 })

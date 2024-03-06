@@ -525,14 +525,75 @@ observe({
   condition = !is.null(input$Pred_learner) && (Pred$Learner$graph_model$output$op.id == "classif.rpart" | Pred$Learner$graph_model$output$op.id == "regr.rpart"))
 })
 
-observeEvent(input$action_visualize, {
-  print(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model)
-  autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty")
-})
+render_decision_tree <- function() {
+  if (Pred$Learner$graph_model$output$op.id == "classif.rpart") {
+    nodes <- nrow(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model$model$frame)
+    print("nodes")
+    if (nodes <= 15) {
+      output$plot_decision_tree <- renderPlot(autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty"))
+    }
+    else {
+      shinyalert(
+      title = "Warning",
+      text = sprintf("Decision Tree might take a while to render and might not fit the designated space, because there are many (%s) nodes", nodes),
+      animation = FALSE,
+      showConfirmButton = TRUE,
+      )
+    }
+    
+  }
+  else if (Pred$Learner$graph_model$output$op.id == "regr.rpart") {
+      nodes <- nrow(Pred$Learner$graph_model$pipeops$regr.rpart$learner_model$model$frame)
+      if (nodes <= 15) {
+        output$plot_decision_tree <- renderPlot(autoplot(Pred$Learner$graph_model$pipeops$regr.rpart$learner_model, type="ggparty"))
+      }
+      else {
+        shinyalert(
+        title = "Warning",
+        text = sprintf("Decision Tree might take a while to render because there are many (%s) nodes", nodes),
+        animation = FALSE,
+        showConfirmButton = TRUE,
+        )
+      }
+  }
+  else (
+    shinyalert(
+    title = "Warning",
+    text = "Error: No decision tree",
+    animation = FALSE,
+    showConfirmButton = TRUE,
+    )
+  )
+}
 
-# getDecisionTreeUi <- function() {
-#   output$plot_decision_tree <- renderPlot({autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty")})
-# }
+observeEvent(input$action_visualize, {
+  if (Pred$Learner_Ov[[4]] == "trained") {
+    render_decision_tree()
+    # if (Pred$Learner$graph_model$output$op.id == "classif.rpart") {
+    #   output$plot_decision_tree <- renderPlot(autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty"))
+    # }
+    # else if (Pred$Learner$graph_model$output$op.id == "regr.rpart") {
+    #    output$plot_decision_tree <- renderPlot(autoplot(Pred$Learner$graph_model$pipeops$regr.rpart$learner_model, type="ggparty"))
+    # }
+    # else (
+    #   shinyalert(
+    #   title = "Warning",
+    #   text = "Error: No decision tree",
+    #   animation = FALSE,
+    #   showConfirmButton = TRUE,
+    #   )
+    # )
+  }
+  else {
+    shinyalert(
+      title = "Warning",
+      text = "Learner must be trained to visualize decision tree",
+      animation = FALSE,
+      showConfirmButton = TRUE,
+      )
+  }
+  
+})
 
 output$plot_decision_tree <- renderUI({
   tagList(
@@ -541,11 +602,12 @@ output$plot_decision_tree <- renderUI({
 })
 
 observeEvent(input$Pred_learner, {
-  print(Pred$Learner$graph_model$output$op.id)
-  print(exists("graph_model", envir = as.environment(Pred$Learner)) && (Pred$Learner$graph_model$output$op.id == "classif.rpart" | Pred$Learner$graph_model$output$op.id == "regr.rpart"))
+  output$plot_decision_tree <- renderPlot({})
 })
 
 observeEvent(input$Predict_predict, {
   print("........")
+  print(Pred$Learner_Ov[[4]])
+  print(nrow(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model$model$frame))
 
 })

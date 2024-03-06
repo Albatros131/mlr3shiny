@@ -525,11 +525,32 @@ observe({
   condition = !is.null(input$Pred_learner) && (Pred$Learner$graph_model$output$op.id == "classif.rpart" | Pred$Learner$graph_model$output$op.id == "regr.rpart"))
 })
 
-render_decision_tree <- function() {
+raise_alert <- function(message, bttn_confirm=FALSE) {
+  if (!bttn_confirm) {
+    shinyalert(
+      title = "Warning",
+      text = message,
+      animation = FALSE,
+      showConfirmButton = TRUE,
+      )
+  }
+  else {
+    shinyalert(
+      title = "Warning",
+      text = message,
+      animation = FALSE,
+      showCancelButton = TRUE,
+      showConfirmButton = TRUE,
+      callbackR = function(x) {if (x == TRUE) {render_decision_tree(TRUE)}})
+  }
+  
+}
+
+render_decision_tree <- function(decision_overwrite=FALSE) {
   if (Pred$Learner$graph_model$output$op.id == "classif.rpart") {
     nodes <- nrow(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model$model$frame)
     print("nodes")
-    if (nodes <= 15) {
+    if (nodes <= 15 | decision_overwrite) {
       output$plot_decision_tree <- renderPlot(autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty"))
     }
     else {
@@ -544,7 +565,7 @@ render_decision_tree <- function() {
   }
   else if (Pred$Learner$graph_model$output$op.id == "regr.rpart") {
       nodes <- nrow(Pred$Learner$graph_model$pipeops$regr.rpart$learner_model$model$frame)
-      if (nodes <= 15) {
+      if (nodes <= 15 | decision_overwrite) {
         output$plot_decision_tree <- renderPlot(autoplot(Pred$Learner$graph_model$pipeops$regr.rpart$learner_model, type="ggparty"))
       }
       else {

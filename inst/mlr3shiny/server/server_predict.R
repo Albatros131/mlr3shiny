@@ -549,41 +549,27 @@ raise_alert <- function(message, bttn_confirm=FALSE) {
 render_decision_tree <- function(decision_overwrite=FALSE) {
   if (Pred$Learner$graph_model$output$op.id == "classif.rpart") {
     nodes <- nrow(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model$model$frame)
+    node_limit <- 15
     print("nodes")
-    if (nodes <= 15 | decision_overwrite) {
+    if (nodes <= node_limit | decision_overwrite) {
       output$plot_decision_tree <- renderPlot(autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty"))
     }
     else {
-      shinyalert(
-      title = "Warning",
-      text = sprintf("Decision Tree might take a while to render and might not fit the designated space, because there are many (%s) nodes", nodes),
-      animation = FALSE,
-      showConfirmButton = TRUE,
-      )
+      raise_alert(sprintf("Decision Tree might take a while to render and might not fit the designated space, because there are many (%s) nodes", nodes), TRUE)
     }
     
   }
   else if (Pred$Learner$graph_model$output$op.id == "regr.rpart") {
       nodes <- nrow(Pred$Learner$graph_model$pipeops$regr.rpart$learner_model$model$frame)
-      if (nodes <= 15 | decision_overwrite) {
+      if (nodes <= node_limit | decision_overwrite) {
         output$plot_decision_tree <- renderPlot(autoplot(Pred$Learner$graph_model$pipeops$regr.rpart$learner_model, type="ggparty"))
       }
       else {
-        shinyalert(
-        title = "Warning",
-        text = sprintf("Decision Tree might take a while to render because there are many (%s) nodes", nodes),
-        animation = FALSE,
-        showConfirmButton = TRUE,
-        )
+        raise_alert(sprintf("Decision Tree might take a while to render and might not fit the designated space, because there are many (%s) nodes", nodes), TRUE)
       }
   }
   else (
-    shinyalert(
-    title = "Warning",
-    text = "Error: No decision tree",
-    animation = FALSE,
-    showConfirmButton = TRUE,
-    )
+    raise_alert("Error: No decision tree")
   )
 }
 
@@ -606,12 +592,7 @@ observeEvent(input$action_visualize, {
     # )
   }
   else {
-    shinyalert(
-      title = "Warning",
-      text = "Learner must be trained to visualize decision tree",
-      animation = FALSE,
-      showConfirmButton = TRUE,
-      )
+    raise_alert("Learner must be trained to visualize decision tree")
   }
   
 })
@@ -626,9 +607,8 @@ observeEvent(input$Pred_learner, {
   output$plot_decision_tree <- renderPlot({})
 })
 
-observeEvent(input$Predict_predict, {
-  print("........")
-  print(Pred$Learner_Ov[[4]])
-  print(nrow(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model$model$frame))
-
-})
+# observeEvent(input$Predict_predict, {
+#   print("........")
+#   print(Pred$Learner_Ov[[4]])
+#   print(nrow(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model$model$frame))
+# })

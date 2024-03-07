@@ -91,9 +91,7 @@ tabpanel_predict <- fluidPage(
               fluidRow(
                 column(4, h5("Decision Tree", style="font-weight: bold;")),
                 column(4, actionButton(inputId = "action_visualize", label = "Visualize Tree", icon = icon("hammer")))),
-
-              #uiOutput(outputId = "plotDecisionTree")
-              plotOutput(outputId="plot_decision_tree")
+              uiOutput(outputId = "plotDecisionTree")
               )
              )
     )

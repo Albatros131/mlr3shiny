@@ -543,13 +543,12 @@ raise_alert <- function(message, bttn_confirm=FALSE) {
       showConfirmButton = TRUE,
       callbackR = function(x) {if (x == TRUE) {render_decision_tree(TRUE)}})
   }
-  
 }
 
 render_decision_tree <- function(decision_overwrite=FALSE) {
+  node_limit <- 15
   if (Pred$Learner$graph_model$output$op.id == "classif.rpart") {
     nodes <- nrow(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model$model$frame)
-    node_limit <- 15
     print("nodes")
     if (nodes <= node_limit | decision_overwrite) {
       output$plot_decision_tree <- renderPlot(autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty"))
@@ -575,21 +574,9 @@ render_decision_tree <- function(decision_overwrite=FALSE) {
 
 observeEvent(input$action_visualize, {
   if (Pred$Learner_Ov[[4]] == "trained") {
+    output$show_viz <- reactive(TRUE)
+    outputOptions(output, "show_viz", suspendWhenHidden = FALSE)
     render_decision_tree()
-    # if (Pred$Learner$graph_model$output$op.id == "classif.rpart") {
-    #   output$plot_decision_tree <- renderPlot(autoplot(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model, type="ggparty"))
-    # }
-    # else if (Pred$Learner$graph_model$output$op.id == "regr.rpart") {
-    #    output$plot_decision_tree <- renderPlot(autoplot(Pred$Learner$graph_model$pipeops$regr.rpart$learner_model, type="ggparty"))
-    # }
-    # else (
-    #   shinyalert(
-    #   title = "Warning",
-    #   text = "Error: No decision tree",
-    #   animation = FALSE,
-    #   showConfirmButton = TRUE,
-    #   )
-    # )
   }
   else {
     raise_alert("Learner must be trained to visualize decision tree")
@@ -597,18 +584,15 @@ observeEvent(input$action_visualize, {
   
 })
 
-output$plot_decision_tree <- renderUI({
+output$plotDecisionTree <- renderUI({
   tagList(
-    plotOutput(outputId = "plot_decision_tree")
+    conditionalPanel(condition="output.show_viz == true", plotOutput(outputId = "plot_decision_tree"))
     )
 })
 
 observeEvent(input$Pred_learner, {
   output$plot_decision_tree <- renderPlot({})
+  output$show_viz <- reactive(FALSE)
+    outputOptions(output, "show_viz", suspendWhenHidden = FALSE)
 })
 
-# observeEvent(input$Predict_predict, {
-#   print("........")
-#   print(Pred$Learner_Ov[[4]])
-#   print(nrow(Pred$Learner$graph_model$pipeops$classif.rpart$learner_model$model$frame))
-# })
